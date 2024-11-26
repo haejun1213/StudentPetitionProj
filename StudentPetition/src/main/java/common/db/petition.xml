@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.PetitionDAO">
+
+	 <select id="selectAllPetitions" resultType="petitionVO">
+        SELECT PETITION_ID as PETITIONID, TITLE, CONTENT, CATEGORY, END_DATE as ENDDATE, STATUS, CREATED_AT as CREATEDAT, USER_ID
+ 		  FROM TB_PETITIONS
+        
+    </select>
+
+    <!-- 특정 청원 조회 -->
+    <select id="selectPetitionById" resultType="petitionVO">
+        SELECT PETITION_ID as PETITIONID, TITLE, CONTENT, CATEGORY, END_DATE as ENDDATE, STATUS, CREATED_AT as CREATEDAT, USER_ID
+          FROM TB_PETITIONS 
+         WHERE PETITION_ID = #{petitionId}
+    </select>
+
+    <!-- 청원 삽입 -->
+    <insert id="insertPetition" parameterType="petitionVO">
+        INSERT INTO TB_PETITIONS (TITLE, CONTENT, CATEGORY, END_DATE, STATUS, CREATED_AT, USER_ID)
+        VALUES (#{title}, #{content}, #{category}, #{endDate}, 'ACTIVE', SYSDATE, #{userId})
+    </insert>
+
+    <!-- 청원 업데이트 -->
+    <update id="updatePetition" parameterType="petitionVO">
+        UPDATE TB_PETITIONS
+        SET TITLE = #{title}, CONTENT = #{content}, CATEGORY = #{category}, END_DATE = #{endDate}, STATUS = #{status}
+        WHERE PETITION_ID = #{petitionId}
+    </update>
+
+    <!-- 청원 삭제 -->
+    <delete id="deletePetition" parameterType="long">
+        DELETE FROM TB_PETITIONS WHERE PETITION_ID = #{petitionId}
+    </delete>
+	
+</mapper>
+
