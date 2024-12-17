@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ReportDAO">
+
+	<select id="selectAllReport" resultType="reportVO">
+		select REPORT_ID as
+		reportId, PETITION_ID as petitionId, USER_ID as userId, REPORT_REASON
+		as content, REPORTED_DATE as createDate
+		from TB_PETITION_REPORTS
+	</select>
+
+	<insert id="insertReport" parameterType="reportVO">
+		insert into
+		TB_PETITION_REPORTS(PETITION_ID, USER_ID, REPORT_REASON)
+		values
+		(#{petitionId, jdbcType=VARCHAR}, #{userId, jdbcType=VARCHAR},
+		#{content, jdbcType=VARCHAR})
+	</insert>
+
+	<delete id="deleteReport" parameterType="long">
+		delete
+		TB_PETITION_REPORTS
+		where REPORT_ID = #{reportId, jdbcType=NUMERIC}
+	</delete>
+
+	<select id="countReports" resultType="int">
+		SELECT COUNT(*) FROM TB_PETITION_REPORTS
+	</select>
+
+	<select id="countCommentReports" resultType="int">
+		SELECT COUNT(*) FROM TB_COMMENT_REPORTS
+	</select>
+
+	<select id="selectPagedReports" parameterType="map"
+		resultType="reportVO">
+		SELECT REPORT_ID as reportId, PETITION_ID as petitionId, USER_ID as userId,
+		REPORT_REASON as content, REPORTED_DATE as createDate
+		FROM TB_PETITION_REPORTS
+		ORDER BY REPORTED_DATE DESC
+		OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+	</select>
+
+	<select id="selectPagedCommentReports" parameterType="map"
+		resultType="reportVO">
+		SELECT COMMENT_REPORT_ID as reportId, COMMENT_ID as petitionId, USER_ID as
+		userId, CONTENT as content, REPORTED_DATE as createDate
+		FROM TB_COMMENT_REPORTS
+		ORDER BY REPORTED_DATE DESC
+		OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+	</select>
+
+</mapper>

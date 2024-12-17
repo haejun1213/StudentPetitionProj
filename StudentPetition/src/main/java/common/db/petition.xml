@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.PetitionDAO">
+
+	<select id="selectAllPetitions" resultType="petitionVO">
+		SELECT PETITION_ID AS
+		petitionId,
+		TITLE,
+		CONTENT,
+		CATEGORY,
+		CLOSE_DATE AS closeDate,
+		PETITION_STATUS AS status,
+		CREATED_DATE AS createdDate,
+		USER_ID
+		FROM TB_PETITIONS
+		ORDER BY createDate DESC
+
+	</select>
+
+	<!-- 특정 청원 조회 -->
+	<select id="selectPetitionById" resultType="petitionVO">
+		SELECT PETITION_ID AS
+		petitionId,
+		TITLE,
+		CONTENT,
+		CATEGORY,
+		TO_CHAR(CLOSE_DATE, 'YYYY-MM-DD') AS
+		closeDate,
+		PETITION_STATUS AS status,
+		CREATED_DATE AS createdDate,
+		USER_ID as userId
+		FROM
+		TB_PETITIONS
+		WHERE PETITION_ID = #{petitionId}
+	</select>
+
+	<!-- 청원 삽입 -->
+	<insert id="insertPetition" parameterType="petitionVO">
+		INSERT INTO
+		TB_PETITIONS (TITLE, CONTENT, CATEGORY, CLOSE_DATE,
+		CREATED_DATE,
+		USER_ID)
+		VALUES (#{title, jdbcType=VARCHAR}, #{content,
+		jdbcType=VARCHAR},
+		#{category, jdbcType=VARCHAR}, #{closeDate,
+		jdbcType=VARCHAR},
+		SYSDATE, #{userId, jdbcType=VARCHAR})
+	</insert>
+
+	<!-- 청원 삭제 -->
+	<delete id="deletePetition" parameterType="long">
+		DELETE FROM
+		TB_PETITIONS WHERE PETITION_ID = #{petitionId}
+	</delete>
+
+	<!-- 전체 청원 수 -->
+	<select id="countPetitions" resultType="int">
+		SELECT COUNT(*) FROM
+		TB_PETITIONS
+	</select>
+
+	<!-- 페이징 처리된 게시글 -->
+	<select id="selectPetitionsByPage" parameterType="map"
+		resultType="petitionVO">
+		SELECT PETITION_ID AS petitionId,
+		TITLE,
+		CONTENT,
+		CATEGORY,
+		CLOSE_DATE AS closeDate,
+		PETITION_STATUS AS status,
+		CREATED_DATE AS
+		createdDate,
+		USER_ID
+		FROM TB_PETITIONS
+		ORDER BY
+		PETITION_ID DESC
+		OFFSET
+		#{offset} ROWS FETCH NEXT #{limit} ROWS
+		ONLY
+	</select>
+
+	<select id="searchPetitions" parameterType="map"
+		resultType="petitionVO">
+		SELECT PETITION_ID as petitionId,
+		TITLE,
+		CATEGORY,
+		CLOSE_DATE as
+		closeDate,
+		PETITION_STATUS as status,
+		CREATED_DATE as createdDate,
+		USER_ID
+		FROM TB_PETITIONS
+		WHERE 1=1
+		<if test="title != null and title != ''">
+			AND TITLE LIKE '%' || #{title} || '%'
+		</if>
+		<if test="category != null and category != ''">
+			AND CATEGORY = #{category}
+		</if>
+		<if test="status != null and status != ''">
+			AND PETITION_STATUS = #{status}
+		</if>
+		ORDER BY PETITION_ID DESC
+	</select>
+
+	<select id="searchPetitionsByPage" parameterType="map" resultType="petitionVO">
+    SELECT 
+        M1.PETITION_ID AS petitionId,
+        M1.TITLE,
+        M1.CATEGORY,
+        M1.CLOSE_DATE AS closeDate,
+        M1.PETITION_STATUS AS status,
+        M1.CREATED_DATE AS createdDate,
+        COUNT(M2.USER_ID) AS participantCount
+    FROM TB_PETITIONS M1
+    LEFT JOIN TB_PETITION_PARTICIPANTS M2 
+        ON M1.PETITION_ID = M2.PETITION_ID
+    WHERE 1=1
+    <if test="title != null and title != ''">
+        AND M1.TITLE LIKE '%' || #{title} || '%'
+    </if>
+    <if test="category != null and category != ''">
+        AND M1.CATEGORY = #{category}
+    </if>
+    <if test="status != null and status != ''">
+        AND M1.PETITION_STATUS = #{status}
+    </if>
+    GROUP BY 
+        M1.PETITION_ID, 
+        M1.TITLE, 
+        M1.CATEGORY, 
+        M1.CLOSE_DATE, 
+        M1.PETITION_STATUS, 
+        M1.CREATED_DATE 
+    <if test="sortBy != null and sortBy != ''">
+        <choose>
+            <when test="sortBy == 'participants'">
+                ORDER BY participantCount DESC
+            </when>
+            <otherwise>
+                ORDER BY M1.PETITION_ID DESC
+            </otherwise>
+        </choose>
+    </if>
+    OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+</select>
+
+
+	<!-- 검색된 청원 수 -->
+	<select id="countPetitionsByCriteria" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM TB_PETITIONS
+		WHERE 1=1
+		<if test="title != null and title != ''">
+			AND TITLE LIKE '%' || #{title} || '%'
+		</if>
+		<if test="category != null and category != ''">
+			AND CATEGORY = #{category}
+		</if>
+		<if test="status != null and status != ''">
+			AND PETITION_STATUS = #{status}
+		</if>
+	</select>
+
+	<!-- 참여 추가 -->
+	<insert id="insertParticipant" parameterType="map">
+		INSERT INTO
+		TB_PETITION_PARTICIPANTS (PETITION_ID, USER_ID, JOINED_DATE)
+		VALUES
+		(#{petitionId}, #{userId}, SYSDATE)
+	</insert>
+
+	<select id="isParticipantExists" resultType="java.lang.Integer"
+		parameterType="map">
+		SELECT COUNT(*)
+		FROM TB_PETITION_PARTICIPANTS
+		WHERE
+		petition_id = #{petitionId} AND user_id = #{userId}
+	</select>
+
+	<!-- 참여 추가 -->
+	<insert id="addParticipant" parameterType="map">
+		INSERT INTO
+		TB_PETITION_PARTICIPANTS (petition_id, user_id)
+		VALUES (#{petitionId},
+		#{userId})
+	</insert>
+
+
+	<select id="getPetitionsByUser" resultType="petitionVO"
+		parameterType="string">
+		SELECT PETITION_ID AS petitionId,
+		TITLE,
+		CONTENT,
+		CATEGORY,
+		CLOSE_DATE AS
+		closeDate,
+		PETITION_STATUS AS status,
+		CREATED_DATE AS createdDate,
+		USER_ID
+		FROM TB_PETITIONS
+		WHERE
+		user_id =
+		#{userId}
+	</select>
+
+	<select id="getJoinedPetitions" resultType="petitionVO"
+		parameterType="string">
+		SELECT M1.PETITION_ID AS petitionId,
+		TITLE,
+		CONTENT,
+		CATEGORY,
+		CLOSE_DATE AS
+		closeDate,
+		PETITION_STATUS AS status,
+		M2.JOINED_DATE AS createdDate,
+		M1.USER_ID
+		FROM TB_PETITIONS M1
+		JOIN TB_PETITION_PARTICIPANTS M2 ON M2.PETITION_ID = M1.PETITION_ID
+		WHERE M2.USER_ID = #{userId}
+	</select>
+
+	<select id="getPetitionParticipate" resultType="int"
+		parameterType="long">
+		SELECT COUNT(1)
+		FROM TB_PETITION_PARTICIPANTS
+		WHERE PETITION_ID = #{id}
+	</select>
+
+	<update id="updatePetition" parameterType="petitionVO">
+		UPDATE TB_PETITIONS
+		SET
+		close_date = #{closeDate},
+		PETITION_status = #{status}
+		WHERE
+		petition_id = #{petitionId}
+	</update>
+
+	<select id="selectPetitionsWithParticipantCount"
+		resultType="petitionVO">
+		SELECT
+		M1.PETITION_ID AS petitionId,
+		M1.TITLE,
+		M1.CATEGORY,
+		M1.PETITION_STATUS as status,
+		M1.CLOSE_DATE AS closeDate,
+		COUNT(M2.USER_ID) as participantCount
+		FROM TB_PETITIONS M1
+		LEFT JOIN TB_PETITION_PARTICIPANTS M2
+		ON M1.PETITION_ID = M2.PETITION_ID
+		GROUP BY
+		M1.PETITION_ID, M1.TITLE, M1.CATEGORY, M1.PETITION_STATUS, M1.CLOSE_DATE
+		ORDER BY M1.CLOSE_DATE DESC
+		OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+
+	</select>
+
+</mapper>
+

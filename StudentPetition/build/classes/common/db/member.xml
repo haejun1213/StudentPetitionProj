@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.MemberDAO">
+
+	<!-- 특정 청원 조회 -->
+	<select id="selectMember" parameterType="memberVO"
+		resultType="memberVO">
+		SELECT USER_ID as userId, 
+		       USER_EMAIL as email, 
+		       USER_PASSWORD as password, 
+		       USER_NAME as name, 
+		       USER_ROLE as role, 
+		       USER_STATUS as status,
+			   CREATED_DATE as createdDate, 
+			   UPDATED_DATE as updatedDate
+	 	  FROM TB_USERS
+		 WHERE USER_ID = #{userId, jdbcType=VARCHAR}
+		<if test="password != null and password != ''">
+		   AND USER_PASSWORD = #{password, jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<insert id="insertMember" parameterType="memberVO">
+		INSERT INTO TB_USERS (USER_ID, USER_EMAIL, USER_PASSWORD, USER_NAME, USER_ROLE, USER_STATUS, CREATED_DATE, UPDATED_DATE)
+		VALUES (#{userId}, #{email}, #{password, jdbcType=VARCHAR}, #{name}, 'USER', 'ACTIVE', SYSDATE, NULL)
+	</insert>
+
+	<select id="getPasswordByUserId" parameterType="string"
+		resultType="string">
+		SELECT USER_PASSWORD as password
+		  FROM TB_USERS
+	 	 WHERE USER_ID = #{userId}
+	</select>
+
+	<select id="selectMemberList" resultType="memberVO">
+		SELECT USER_ID as userId, 
+			   USER_EMAIL as email, 
+			   USER_PASSWORD as password,
+		       USER_NAME as name,
+		       USER_ROLE as role, 
+		       USER_STATUS as status,
+			   CREATED_DATE as createdDate, 
+			   UPDATED_DATE as updatedDate
+    	  FROM TB_USERS
+	</select>
+	
+	<select id="selectMemberByEmail" parameterType="memberVO" resultType="memberVO">
+	SELECT USER_ID as userId, 
+		       USER_EMAIL as email, 
+		       USER_PASSWORD as password, 
+		       USER_NAME as name, 
+		       USER_ROLE as role, 
+		       USER_STATUS as status,
+			   CREATED_DATE as createdDate, 
+			   UPDATED_DATE as updatedDate
+	 	  FROM TB_USERS
+		 WHERE USER_EMAIL = #{email, jdbcType=VARCHAR}
+		<if test="password != null and password != ''">
+		   AND USER_NAME = #{name, jdbcType=VARCHAR}
+		</if>
+	
+	</select>
+	
+	<!-- ID 존재 여부 확인 -->
+    <select id="checkIdExists" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_USERS
+        WHERE USER_ID = #{id}
+    </select>
+
+    <!-- Email 존재 여부 확인 -->
+    <select id="checkEmailExists" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_USERS
+        WHERE USER_EMAIL = #{email}
+    </select>
+    
+   <update id="updateMember" parameterType="memberVO">
+    UPDATE TB_USERS
+       SET USER_NAME = #{name}
+        , UPDATED_DATE = SYSDATE
+    <if test="password != null and password != ''">
+        , USER_PASSWORD = #{password}
+    </if>
+     WHERE USER_ID = #{userId}
+</update>
+
+<select id="getMemberList" parameterType="map" resultType="memberVO">
+        SELECT USER_ID as userId, 
+		       USER_EMAIL as email, 
+		       USER_PASSWORD as password, 
+		       USER_NAME as name, 
+		       USER_ROLE as role, 
+		       USER_STATUS as status,
+			   CREATED_DATE as createdDate, 
+			   UPDATED_DATE as updatedDate
+	     FROM TB_USERS
+        WHERE 1=1
+        <if test="search != null and search != ''">
+          and USER_ID LIKE #{search}
+        </if>
+        ORDER BY created_Date
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+    <!-- 전체 회원 수 조회 -->
+    <select id="countMembers" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM TB_USERS WHERE user_name LIKE #{search}
+    </select>
+    
+    <select id="getMemberStatus" parameterType="string" resultType="string">
+        SELECT USER_STATUS as status
+        FROM TB_USERS
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <update id="updateMemberStatus" parameterType="map">
+        UPDATE TB_USERS
+        SET USER_STATUS = #{status}
+        WHERE USER_ID = #{userId}
+    </update>
+    
+    <delete id="deleteMember" parameterType="string">
+        DELETE FROM TB_USERS
+        WHERE USER_ID = #{userId}
+    </delete>
+</mapper>
+

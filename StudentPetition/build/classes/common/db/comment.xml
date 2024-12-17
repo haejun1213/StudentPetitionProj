@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.PetitionCommentDAO">
+
+	<!-- 특정 청원의 모든 댓글 조회 -->
+<select id="selectAllCommentsByPetitionId" resultType="petitionCommentVO">
+    SELECT COMMENT_ID AS commentId,
+           PETITION_ID AS petitionId,
+           USER_ID AS userId,
+           PARENT_COMMENT_ID AS parentCommentId,
+           CONTENT,
+           CREATED_DATE AS createdDate
+      FROM TB_PETITION_COMMENTS
+     WHERE PETITION_ID = #{petitionId}
+       AND TYPE = 'C'
+     ORDER BY NVL(PARENT_COMMENT_ID, COMMENT_ID),
+              CREATED_DATE
+</select>
+
+<select id="selectAnswer" resultType="petitionCommentVO">
+    SELECT COMMENT_ID AS commentId,
+           PETITION_ID AS petitionId,
+           USER_ID AS userId,
+           PARENT_COMMENT_ID AS parentCommentId,
+           CONTENT,
+           CREATED_DATE AS createdDate
+      FROM TB_PETITION_COMMENTS
+     WHERE PETITION_ID = #{petitionId}
+       AND TYPE = 'A'
+     ORDER BY NVL(PARENT_COMMENT_ID, COMMENT_ID),
+              CREATED_DATE
+</select>
+
+<!-- 특정 댓글 조회 -->
+<select id="selectCommentById" resultType="petitionCommentVO">
+    SELECT COMMENT_ID AS commentId,
+           PETITION_ID AS petitionId,
+           USER_ID AS userId,
+           PARENT_COMMENT_ID AS parentCommentId,
+           CONTENT,
+           CREATED_DATE AS createdDate
+    FROM TB_PETITION_COMMENTS
+    WHERE COMMENT_ID = #{commentId}
+</select>
+
+<!-- 댓글 삽입 -->
+<insert id="insertComment" parameterType="petitionCommentVO">
+        INSERT INTO TB_PETITION_COMMENTS 
+        (COMMENT_ID, PETITION_ID, USER_ID, PARENT_COMMENT_ID, CONTENT, CREATED_DATE)
+        VALUES 
+        (SEQ_COMMENT_ID.NEXTVAL, 
+         #{petitionId}, 
+         #{userId}, 
+         #{parentCommentId, jdbcType=NUMERIC}, <!-- parentCommentId에 대한 JdbcType을 NUMERIC으로 설정 -->
+         #{content}, 
+         SYSDATE)
+    </insert>
+
+
+<insert id="insertAnswer" parameterType="petitionCommentVO">
+        INSERT INTO TB_PETITION_COMMENTS 
+        (COMMENT_ID, PETITION_ID, USER_ID, TYPE, PARENT_COMMENT_ID, CONTENT, CREATED_DATE)
+        VALUES 
+        (SEQ_COMMENT_ID.NEXTVAL, 
+         #{petitionId}, 
+         #{userId}, 
+         'A',
+         #{parentCommentId, jdbcType=NUMERIC}, <!-- parentCommentId에 대한 JdbcType을 NUMERIC으로 설정 -->
+         #{content}, 
+         SYSDATE)
+    </insert>
+<!-- 댓글 업데이트 -->
+<update id="updateComment" parameterType="petitionCommentVO">
+    UPDATE TB_PETITION_COMMENTS
+    SET CONTENT = #{content}
+    WHERE COMMENT_ID = #{commentId}
+</update>
+
+<!-- 댓글 삭제 -->
+<delete id="deleteComment" parameterType="long">
+    DELETE FROM TB_PETITION_COMMENTS
+    WHERE COMMENT_ID = #{commentId}
+</delete>
+
+<!-- 대댓글 삽입 -->
+<insert id="insertReplyComment" parameterType="petitionCommentVO">
+    INSERT INTO TB_PETITION_COMMENTS (COMMENT_ID, PETITION_ID, USER_ID, PARENT_COMMENT_ID, CONTENT, CREATED_DATE)
+    VALUES (SEQ_COMMENT_ID.NEXTVAL, #{petitionId, jdbcType=VARCHAR}, #{userId, jdbcType=VARCHAR}, #{parentCommentId}, #{content, jdbcType=VARCHAR}, SYSDATE)
+</insert>
+
+	
+ <select id="getCommentsByUser" resultType="petitionCommentVO"
+		parameterType="string">
+		SELECT COMMENT_ID AS commentId,
+               PETITION_ID AS petitionId,
+               CONTENT,
+               TYPE as type,
+               CREATED_DATE AS createdDate
+          FROM TB_PETITION_COMMENTS
+         WHERE USER_ID = #{userId}
+	</select>
+
+	<select id="selectComment" parameterType="long" resultType="petitionCommentVO">
+		SELECT COMMENT_ID AS commentId,
+               PETITION_ID AS petitionId,
+               CONTENT,
+               TYPE as type,
+               CREATED_DATE AS createdDate
+          FROM TB_PETITION_COMMENTS
+         WHERE COMMENT_ID = #{commentId}
+	</select>
+
+</mapper>
