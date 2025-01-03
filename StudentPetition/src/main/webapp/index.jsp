@@ -15,6 +15,11 @@
 			alert("로그인 후 작성할 수 있습니다.");
 		</script>
 	</c:when>
+	<c:when test="${ param.message eq 1 }">
+		<script>
+			alert("문의가 접수되었습니다.");
+		</script>
+	</c:when>
 </c:choose>
     
     <style>

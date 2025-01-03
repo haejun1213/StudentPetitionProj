@@ -8,7 +8,8 @@
 
 	<div class="footer-center">
 		<ul>
-			<li><a href="/StudentPetition/jsp/info/direction.jsp">찾아오시는 길</a></li>
+			<li><a href="/StudentPetition/info/direction.do">찾아오시는 길</a></li>
+			<li><a href="/StudentPetition/info/inquiryForm.do">문의하기</a></li>
 			
 		</ul>
 	</div>

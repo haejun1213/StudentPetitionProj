@@ -258,5 +258,29 @@
 
 	</select>
 
+	<select id="selectCurrentPetitionsByPage" resultType="petitionVO" parameterType="map">
+		SELECT PETITION_ID AS petitionId,
+		TITLE,
+		CONTENT,
+		CATEGORY,
+		CLOSE_DATE AS closeDate,
+		PETITION_STATUS AS status,
+		CREATED_DATE AS
+		createdDate,
+		USER_ID
+		FROM TB_PETITIONS
+		WHERE TRUNC(created_date) = TRUNC(sysdate)
+		ORDER BY
+		PETITION_ID DESC
+		OFFSET
+		#{offset} ROWS FETCH NEXT #{limit} ROWS
+		ONLY
+	</select>
+	
+	<select id="countCurrentPetitions" resultType="int">
+		SELECT COUNT(*) 
+		  FROM TB_PETITIONS
+		 WHERE TRUNC(created_date) = TRUNC(sysdate)
+	</select>
 </mapper>
 

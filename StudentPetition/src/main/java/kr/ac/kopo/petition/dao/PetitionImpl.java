@@ -138,6 +138,19 @@ public class PetitionImpl implements PetitionDAO {
                 Map.of("offset", offset, "limit", limit));
         }
 
+	@Override
+	public List<PetitionVO> getCurrentPetitionsByPage(int offset, int itemsPerPage) {
+		sqlSession.clearCache();
+		Map<String, Integer> params = Map.of("offset", offset, "limit", itemsPerPage);
+		return sqlSession.selectList("dao.PetitionDAO.selectCurrentPetitionsByPage", params);
+	}
+
+	@Override
+	public int countCurrentPetitions() {
+		sqlSession.clearCache();
+		return sqlSession.selectOne("dao.PetitionDAO.countCurrentPetitions");
+	}
+
     
 	
 }

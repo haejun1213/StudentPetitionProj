@@ -40,6 +40,10 @@ public interface PetitionDAO {
 	int deletePetition(Long petitionId) throws Exception;
 
 	List<PetitionVO> selectPetitionsWithParticipantCount(int offset, int itemsPerPage);
+
+	List<PetitionVO> getCurrentPetitionsByPage(int offset, int itemsPerPage);
+
+	int countCurrentPetitions();
 	
 	
 

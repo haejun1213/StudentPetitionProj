@@ -95,6 +95,18 @@ public class PetitionServiceImpl implements PetitionService {
 		return petitionDao.deletePetition(petitionId) == 1;
 		
 	}
+
+	@Override
+	public List<PetitionVO> getCurrentPetitionsByPage(int currentPage, int itemsPerPage) throws Exception {
+		int offset = (currentPage - 1) * itemsPerPage;
+		return petitionDao.getCurrentPetitionsByPage(offset, itemsPerPage);
+	}
+
+	@Override
+	public int countCurrentPetitions() throws Exception {
+		return petitionDao.countCurrentPetitions();
+	}
+	
 	
 	
 

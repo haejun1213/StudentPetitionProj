@@ -18,11 +18,11 @@
 		<div class="navbar-right">
 			<c:choose>
 				<c:when test="${ isLoggedIn }">
-					<!-- 로그인된 상태 -->
 					<ul>
 						<c:if test="${ loginedMember.role eq 'ADMIN' }">
-							<!-- 로그인된 상태 -->
-							<li><a href="/StudentPetition/admin/mPetition.do?page=1">신고 관리</a></li>
+							<li><a href="/StudentPetition/admin/mInquiry.do?page=1">문의 관리</a></li>
+							<li><a href="/StudentPetition/admin/mPetition.do?page=1">청원 관리</a></li>
+							<li><a href="/StudentPetition/admin/mReport.do?page=1">신고 관리</a></li>
 							<li><a href="/StudentPetition/admin/mMember.do?page=1">회원 관리</a></li>
 						</c:if>
 						<li><a href="/StudentPetition/member/myPage.do">[ ${ loginedMember.name } ] 마이페이지</a></li>
@@ -32,7 +32,6 @@
 
 
 				<c:otherwise>
-					<!-- 로그인되지 않은 상태 -->
 					<ul>
 						<li><a href="/StudentPetition/member/loginForm.do">로그인</a></li>
 						<li><a href="/StudentPetition/member/signUpForm.do">회원가입</a></li>

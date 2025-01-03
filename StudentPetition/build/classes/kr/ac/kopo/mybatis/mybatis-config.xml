@@ -30,5 +30,6 @@
 		<mapper resource="common/db/member.xml"/>
 		<mapper resource="common/db/comment.xml"/>
 		<mapper resource="common/db/report.xml"/>
+		<mapper resource="common/db/inquiry.xml"/>
 	</mappers>
 </configuration>

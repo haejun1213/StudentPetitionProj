@@ -38,4 +38,8 @@ public interface PetitionService {
 
 	boolean deletePetitionBy(Long petitionId) throws Exception;
 
+	List<PetitionVO> getCurrentPetitionsByPage(int currentPage, int itemsPerPage) throws Exception;
+
+	int countCurrentPetitions() throws Exception;
+
 }
